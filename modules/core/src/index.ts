@@ -95,6 +95,17 @@ export {mergeShaders as _mergeShaders} from './utils/shader';
 export {compareProps as _compareProps} from './lifecycle/props';
 export {applyStyles as _applyStyles, removeStyles as _removeStyles} from './utils/apply-styles';
 
+// HDR Export utilities (experimental)
+// NOTE: readPixelsAsync should ideally move to luma.gl once a unified API is available
+export {HDRExporter as _HDRExporter} from './utils/hdr-exporter';
+export {HDRRenderLoop as _HDRRenderLoop} from './utils/hdr-render-loop';
+export {writeEXR as _writeEXR} from './utils/exr-writer';
+export {readPixelsAsync as _readPixelsAsync, flipPixelsVertically as _flipPixelsVertically} from './utils/gpu-readback';
+export type {HDRExporterProps as _HDRExporterProps} from './utils/hdr-exporter';
+export type {HDRRenderLoopProps as _HDRRenderLoopProps, RenderSequenceOptions as _RenderSequenceOptions} from './utils/hdr-render-loop';
+export type {WriteEXROptions as _WriteEXROptions, EXRChannelType as _EXRChannelType} from './utils/exr-writer';
+export type {ReadPixelsOptions as _ReadPixelsOptions, ReadPixelsResult as _ReadPixelsResult} from './utils/gpu-readback';
+
 // Types
 export type {CoordinateSystem} from './lib/constants';
 export type {MapViewState, MapViewProps} from './views/map-view';

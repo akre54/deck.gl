@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import {Device, Texture, SamplerProps} from '@luma.gl/core';
+import {Device, Texture, SamplerProps, TextureFormat} from '@luma.gl/core';
 
 const DEFAULT_TEXTURE_PARAMETERS: SamplerProps = {
   minFilter: 'linear',
@@ -15,6 +15,16 @@ const DEFAULT_TEXTURE_PARAMETERS: SamplerProps = {
 // Track the textures that are created by us. They need to be released when they are no longer used.
 const internalTextures: Record<string, string> = {};
 
+export type CreateTextureOptions = {
+  /**
+   * Use sRGB texture format for automatic linearization on sample.
+   * When true, uses 'rgba8unorm-srgb' format instead of 'rgba8unorm'.
+   * This is recommended for color textures in linear color space workflows.
+   * Default: false (uses 'rgba8unorm')
+   */
+  srgb?: boolean;
+};
+
 /**
  *
  * @param owner
@@ -23,14 +33,16 @@ const internalTextures: Record<string, string> = {};
  *   - Texture
  *   - Browser object: Image, ImageData, ImageData, HTMLCanvasElement, HTMLVideoElement, ImageBitmap
  *   - Plain object: {width: <number>, height: <number>, data: <Uint8Array>}
- * @param parameters
+ * @param sampler
+ * @param options Additional texture options
  * @returns
  */
 export function createTexture(
   owner: string,
   device: Device,
   image: any,
-  sampler: SamplerProps
+  sampler: SamplerProps,
+  options?: CreateTextureOptions
 ): Texture | null {
   if (image instanceof Texture) {
     return image;
@@ -47,9 +59,18 @@ export function createTexture(
     };
   }
 
+  // Determine format: use sRGB format if requested for automatic linearization
+  let format: TextureFormat | undefined = image.format;
+  if (options?.srgb && !format) {
+    // Use sRGB format for automatic gamma-to-linear conversion on sample
+    // This is the standard approach for color textures in linear rendering pipelines
+    format = 'rgba8unorm-srgb';
+  }
+
   const {width, height} = image.data;
   const texture = device.createTexture({
     ...image,
+    ...(format && {format}),
     sampler: {
       ...DEFAULT_TEXTURE_PARAMETERS,
       ...samplerParameters,
